@@ -22,9 +22,9 @@
                 navigator.geolocation.getCurrentPosition(function(position) {
                     var latitude = position.coords.latitude;
                     var longitude = position.coords.longitude;
-                    var message = "My current location is: https://www.google.com/maps/place/" + latitude + "," + longitude;
+                    var message = "My current location is: " + latitude + "," + longitude;
 
-                    var smsNumber = "+61041234567";
+                    var smsNumber = "+61439524389";
                     var smsBody = encodeURIComponent(message);
 
                     var smsUrl = "sms:" + smsNumber + "?body=" + smsBody;
