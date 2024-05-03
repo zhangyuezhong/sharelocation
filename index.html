@@ -1,40 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Send Location via SMS</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-gray-100 p-4">
     <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
         <h1 class="text-2xl font-bold mb-4">Send Location via SMS</h1>
         <p class="mb-4">Tap the button to share your location via SMS.</p>
 
-        <button id="getLocationBtn" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300">
-            Get Location and Send SMS
+        <button id="getLocationBtn"
+            class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300">
+            Get Location and Send SMS2
         </button>
+
+        <!-- Alert div -->
+        <div id="alertMessage"
+            class="hidden p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+            role="alert">
+            <span class="font-medium" id="alertText"></span>
+        </div>
+
     </div>
 
     <script>
-        document.getElementById("getLocationBtn").addEventListener("click", function() {
+        document.getElementById("getLocationBtn").addEventListener("click", function () {
             if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    var latitude = position.coords.latitude;
-                    var longitude = position.coords.longitude;
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var latitude = position.coords.latitude.toFixed(8);
+                    var longitude = position.coords.longitude.toFixed(8);
                     var message = "My current location is: " + latitude + "," + longitude;
 
                     var smsNumber = "+61439524389";
                     var smsBody = encodeURIComponent(message);
+                    var smsUrl = "sms:" + smsNumber + "?&body=" + smsBody;
 
-                    var smsUrl = "sms:" + smsNumber + "?body=" + smsBody;
-
+                    // Open the SMS app
                     window.location.href = smsUrl;
+                }, function (error) {
+                    // Handle geolocation error
+                    handleGeolocationError(error);
                 });
             } else {
-                alert("Geolocation is not supported by your browser.");
+                // Show the alert with the message
+                var alertMessage = document.getElementById("alertMessage");
+                var alertText = document.getElementById("alertText");
+                alertText.textContent = "Geolocation is not supported by your browser.";
+                alertMessage.classList.remove("hidden");
             }
         });
+
+        // Function to handle geolocation errors
+        function handleGeolocationError(error) {
+            var errorMessage;
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    if (isiPhone()) {
+                        errorMessage = "The request for geolocation has been declined. Please navigate to Settings > Privacy & Security > Location Services. Ensure that Location Services is On and that Safari Websites are allowed to access your location."
+                    } else {
+                        errorMessage = "The request for geolocation has been declined.. Please navigate to Settings > Location and move the slider to On.";
+                    }
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = "Location information is unavailable.";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = "The request to get user location timed out.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    errorMessage = "An unknown error occurred.";
+                    break;
+            }
+            // Show the error message in the alert
+            var alertMessage = document.getElementById("alertMessage");
+            var alertText = document.getElementById("alertText");
+            alertText.textContent = errorMessage;
+            alertMessage.classList.remove("hidden");
+        }
+        function isiPhone() {
+            const ua = navigator.userAgent
+            return /iPhone/i.test(ua)
+        }
+
     </script>
 </body>
+
 </html>
